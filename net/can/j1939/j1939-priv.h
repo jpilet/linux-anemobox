@@ -307,8 +307,8 @@ extern void j1939tp_module_exit(void);
 
 /* rtnetlink */
 extern const struct rtnl_af_ops j1939_rtnl_af_ops;
-extern int j1939rtnl_new_addr(struct sk_buff *, struct nlmsghdr *, void *arg);
-extern int j1939rtnl_del_addr(struct sk_buff *, struct nlmsghdr *, void *arg);
+extern int j1939rtnl_new_addr(struct sk_buff *, struct nlmsghdr *);
+extern int j1939rtnl_del_addr(struct sk_buff *, struct nlmsghdr *);
 extern int j1939rtnl_dump_addr(struct sk_buff *, struct netlink_callback *);
 
 #endif /* _J1939_PRIV_H_ */
