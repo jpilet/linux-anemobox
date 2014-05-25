@@ -494,8 +494,8 @@ int __init j1939bus_module_init(void)
 {
 	INIT_LIST_HEAD(&segments.list);
 	spin_lock_init(&segments.lock);
-	j1939_proc_add("addr", j1939_proc_addr, NULL);
-	j1939_proc_add("ecu", j1939_proc_ecu, NULL);
+	j1939_proc_add("addr", j1939_proc_addr);
+	j1939_proc_add("ecu", j1939_proc_ecu);
 	return 0;
 }
 

@@ -970,7 +970,7 @@ __init int j1939sk_module_init(void)
 	if (ret < 0)
 		pr_err("can: registration of j1939 protocol failed\n");
 	else
-		j1939_proc_add("sock", j1939sk_proc_show, NULL);
+		j1939_proc_add("sock", j1939sk_proc_show);
 	return ret;
 }
 

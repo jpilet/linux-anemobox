@@ -23,57 +23,34 @@ static struct proc_dir_entry *rootdir;
 
 static int j1939_proc_open(struct inode *inode, struct file *file)
 {
-	struct proc_dir_entry *pde = PDE(inode);
-	int (*fn)(struct seq_file *sqf, void *v) = pde->data;
+	int (*fn)(struct seq_file *sqf, void *v) = PDE_DATA(inode);
 
-	return single_open(file, fn, pde);
+	return single_open(file, fn, NULL);
 }
 
 /* copied from fs/proc/generic.c */
-static ssize_t
-proc_file_write(struct file *file, const char __user *buffer,
-		size_t count, loff_t *ppos)
-{
-	struct inode *inode = file->f_path.dentry->d_inode;
-	struct proc_dir_entry *dp;
-
-	dp = PDE(inode);
-
-	if (!dp->write_proc)
-		return -EIO;
-
-	/* FIXME: does this routine need ppos?  probably... */
-	return dp->write_proc(file, buffer, count, dp->data);
-}
-
 static const struct file_operations j1939_proc_ops = {
 	.owner		= THIS_MODULE,
 	.open		= j1939_proc_open,
 	.read		= seq_read,
-	.write		= proc_file_write,
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
 
 int j1939_proc_add(const char *file,
-		int (*seq_show)(struct seq_file *sqf, void *v),
-		write_proc_t write)
+		int (*seq_show)(struct seq_file *sqf, void *v))
 {
 	struct proc_dir_entry *pde;
 	int mode = 0;
 
 	if (seq_show)
 		mode |= 0444;
-	if (write)
-		mode |= 0200;
 
 	if (!rootdir)
 		return -ENODEV;
-	pde = proc_create(file, mode, rootdir, &j1939_proc_ops);
+	pde = proc_create_data(file, mode, rootdir, &j1939_proc_ops, seq_show);
 	if (!pde)
 		goto fail_create;
-	pde->data = seq_show;
-	pde->write_proc = write;
 	return 0;
 
 fail_create:
@@ -99,6 +76,6 @@ __init int j1939_proc_module_init(void)
 void j1939_proc_module_exit(void)
 {
 	if (rootdir)
-		proc_net_remove(&init_net, j1939_procname);
+		proc_remove(rootdir);
 }
 

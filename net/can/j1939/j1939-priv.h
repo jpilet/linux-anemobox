@@ -178,8 +178,7 @@ extern void j1939_put_promisc_receiver(int ifindex);
 extern void j1939_get_promisc_receiver(int ifindex);
 
 extern int j1939_proc_add(const char *file,
-		int (*seq_show)(struct seq_file *sqf, void *v),
-		write_proc_t write);
+		int (*seq_show)(struct seq_file *sqf, void *v));
 extern void j1939_proc_remove(const char *file);
 
 extern const char j1939_procname[];

@@ -1418,7 +1418,7 @@ int __init j1939tp_module_init(void)
 	s.notifier.notifier_call = j1939tp_notifier;
 	register_netdevice_notifier(&s.notifier);
 
-	j1939_proc_add("transport", j1939tp_proc_show, NULL);
+	j1939_proc_add("transport", j1939tp_proc_show);
 	j1939tp_table_header =
 		register_sysctl_paths(j1939tp_path, j1939tp_table);
 	init_waitqueue_head(&s.wait);
