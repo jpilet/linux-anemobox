@@ -96,12 +96,6 @@ int j1939_segment_register(struct net_device *netdev)
 	int ret;
 	struct j1939_segment *jseg;
 
-	jseg = j1939_segment_find(netdev->ifindex);
-	if (jseg) {
-		put_j1939_segment(jseg);
-		ret = -EALREADY;
-		goto fail_exist;
-	}
 	jseg = kzalloc(sizeof(*jseg), GFP_KERNEL);
 	if (!jseg) {
 		ret = -ENOMEM;
@@ -124,7 +118,6 @@ int j1939_segment_register(struct net_device *netdev)
 	return 0;
 
 fail_malloc:
-fail_exist:
 	return ret;
 }
 

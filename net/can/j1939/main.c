@@ -342,6 +342,11 @@ int j1939_segment_attach(struct net_device *netdev)
 	if (netdev->type != ARPHRD_CAN)
 		return -EAFNOSUPPORT;
 
+	/* lookup existing one */
+	jseg = j1939_segment_find(netdev->ifindex);
+	if (jseg)
+		return 0;
+	/* create new j1939 segment */
 	ret = j1939_segment_register(netdev);
 	if (ret < 0)
 		goto fail_register;
@@ -366,7 +371,7 @@ int j1939_segment_detach(struct net_device *netdev)
 	BUG_ON(!netdev);
 	jseg = j1939_segment_find(netdev->ifindex);
 	if (!jseg)
-		return -EHOSTDOWN;
+		return 0;
 	can_rx_unregister(netdev, J1939_CAN_ID, J1939_CAN_MASK,
 			j1939_can_recv, jseg);
 	j1939_segment_unregister(jseg);
