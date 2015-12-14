@@ -111,7 +111,7 @@ struct devs_id __initconst device_ids[] = {
 
 	/* SPI devices */
 	{"spidev", SFI_DEV_TYPE_SPI, 0, &spidev_platform_data, NULL},
-	{"ads7955", SFI_DEV_TYPE_SPI, 0, &ads7955_platform_data, NULL},
+	//{"ads7955", SFI_DEV_TYPE_SPI, 0, &ads7955_platform_data, NULL},
 	{"bma023", SFI_DEV_TYPE_I2C, 1, &no_platform_data, NULL},
 	{"pmic_gpio", SFI_DEV_TYPE_SPI, 1, &pmic_gpio_platform_data, NULL},
 	{"pmic_gpio", SFI_DEV_TYPE_IPC, 1, &pmic_gpio_platform_data,
