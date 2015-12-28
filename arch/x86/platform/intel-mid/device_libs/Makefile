@@ -41,7 +41,8 @@ obj-$(subst m,y,$(CONFIG_SND_SOC_WM8994)) += platform_wm8994.o
 # SPI Devices
 obj-$(subst m,y,$(CONFIG_SERIAL_MRST_MAX3110)) += platform_max3111.o
 obj-$(subst m,y,$(CONFIG_SPI_SPIDEV)) += platform_spidev.o
-obj-$(subst m,y,$(CONFIG_TI_ADS7955_ADC)) += platform_ads7955.o
+#obj-$(subst m,y,$(CONFIG_TI_ADS7955_ADC)) += platform_ads7955.o
+obj-$(subst m,y,$(CONFIG_TI_ADS7955_ADC)) += platform_mcp2515.o
 # MISC Devices
 obj-$(subst m,y,$(CONFIG_KEYBOARD_GPIO)) += platform_gpio_keys.o
 # ADC

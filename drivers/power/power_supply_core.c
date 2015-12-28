@@ -632,6 +632,9 @@ void power_supply_unregister(struct power_supply *psy)
 	if (IS_CHARGER(psy))
 		power_supply_unregister_charger(psy);
 	power_supply_remove_triggers(psy);
+	if (IS_CHARGER(psy))
+		power_supply_unregister_charger(psy);
+	power_supply_remove_triggers(psy);
 	psy_unregister_cooler(psy);
 	psy_unregister_thermal(psy);
 	device_init_wakeup(psy->dev, false);

@@ -44,6 +44,8 @@
 #include <asm/reboot.h>
 #include "intel_mid_weak_decls.h"
 
+#include "./device_libs/platform_mcp2515.h"
+
 #define	SFI_SIG_OEM0	"OEM0"
 #define MAX_IPCDEVS	24
 #define MAX_SCU_SPI	24
@@ -596,6 +598,32 @@ static int __init sfi_parse_oemb(struct sfi_table_header *table)
 	return 0;
 }
 
+static struct sfi_device_table_entry sfi_mcp2515_table_entry;
+static struct devs_id mcp2515_devs_id;
+
+// Hack suggested in 
+// https://communities.intel.com/thread/59205?start=0&tstart=0
+static void __init init_mcp2515_spi(void)
+{
+        sfi_mcp2515_table_entry.type = SFI_DEV_TYPE_SPI;
+        sfi_mcp2515_table_entry.host_num = 5;
+        sfi_mcp2515_table_entry.addr = 0;
+
+        // The maximum SPI clock frequency for the MCP2515 is 10 MHz
+        sfi_mcp2515_table_entry.max_freq = 10000000;
+
+        // we set the IRQ later.
+        sfi_mcp2515_table_entry.irq = 0;
+        strcpy(sfi_mcp2515_table_entry.name, "mcp2515");
+ 
+        strcpy(mcp2515_devs_id.name, "mcp2515");
+        mcp2515_devs_id.type = SFI_DEV_TYPE_SPI;
+        mcp2515_devs_id.delay = 0;
+        mcp2515_devs_id.get_platform_data = &mcp2515_platform_data;
+        mcp2515_devs_id.device_handler = NULL;
+ 
+        sfi_handle_spi_dev(&sfi_mcp2515_table_entry, &mcp2515_devs_id);
+}
 static int __init intel_mid_platform_init(void)
 {
 	/* Get SFI OEMB Layout */
@@ -603,6 +631,7 @@ static int __init intel_mid_platform_init(void)
 	sfi_table_parse(SFI_SIG_GPIO, NULL, NULL, sfi_parse_gpio);
 	sfi_table_parse(SFI_SIG_DEVS, NULL, NULL, sfi_parse_devs);
 
+        init_mcp2515_spi();
 	return 0;
 }
 arch_initcall(intel_mid_platform_init);
