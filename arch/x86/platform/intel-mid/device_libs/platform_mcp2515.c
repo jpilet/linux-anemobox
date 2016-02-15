@@ -42,8 +42,8 @@ static struct intel_mid_ssp_spi_chip chip = {
 
 static void tng_ssp_spi_cs_control(u32 command)
 {
-        pr_debug("mcp251x: setting CS0 line to %d\n", (command != 0) ? 1 : 0);
-	gpio_set_value(tng_ssp_spi2_CS0_gpio, (command != 0) ? 1 : 0);
+        //pr_debug("mcp251x: setting CS0 line to %d\n", (command != 0) ? 1 : 0);
+	gpio_set_value(tng_ssp_spi2_CS0_gpio, (command == CS_ASSERT) ? 0 : 1);
 }
 
 static void tng_ssp_spi_platform_pinmux(void)
@@ -97,6 +97,7 @@ void __init *mcp2515_platform_data(void *info)
 
 	spi_info->mode = SPI_MODE_0;
 
+	spi_info->max_speed_hz = 10000000,
 	spi_info->controller_data = &chip;
 	spi_info->bus_num = FORCE_SPI_BUS_NUM;
 

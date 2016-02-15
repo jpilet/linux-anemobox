@@ -54,7 +54,6 @@
 #define DMA_CH_SIZE		0x58
 #define DMA_FIFO_SIZE 0x100080
 
-
 /*CH X REG = (DMA_CH_SIZE)*CH_NO + REG*/
 #define SAR			0x00 /* Source Address Register*/
 #define DAR			0x08 /* Destination Address Register*/
@@ -93,6 +92,8 @@
 #define FIFO_PARTITION1_HI	0x40C
 #define CH_SAI_ERR		0x410
 
+#define SHIM_OFFSET 0x140000
+#define SHIM_ISRX_OFFSET	0x18
 #define CTL_LO_BIT_LLP_DST_EN	27
 #define CTL_LO_BIT_LLP_SRC_EN	28
 
@@ -277,9 +278,9 @@ struct intel_mid_dma_ops {
  * @active_list: current active descriptors
  * @queue: current queued up descriptors
  * @free_list: current free descriptors
- * @slave: dma slave struture
- * @descs_allocated: total number of decsiptors allocated
- * @dma: dma device struture pointer
+ * @slave: dma slave structure
+ * @descs_allocated: total number of descriptors allocated
+ * @dma: dma device structure pointer
  * @busy: bool representing if ch is busy (active txn) or not
  * @in_use: bool representing if ch is in use or not
  * @raw_tfr: raw trf interrupt received

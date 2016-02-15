@@ -166,6 +166,7 @@ static struct mmc_blk_data *mmc_blk_get(struct gendisk *disk)
 	return md;
 }
 
+
 static inline int mmc_get_devidx(struct gendisk *disk)
 {
 	int devmaj = MAJOR(disk_devt(disk));

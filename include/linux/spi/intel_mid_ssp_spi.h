@@ -37,7 +37,7 @@
 #define PCI_MRFL_DMAC_ID	0x11A2
 
 #define SSP_NOT_SYNC 0x400000
-#define MAX_SPI_TRANSFER_SIZE 8192
+#define MAX_SPI_TRANSFER_SIZE (8192*2)
 #define MAX_BITBANGING_LOOP   10000
 #define SPI_FIFO_SIZE 16
 
@@ -223,6 +223,11 @@ DEFINE_SSP_REG(GAFR1_U, 0x44);
 				| SSCR1_RFT | SSCR1_TFT | SSCR1_MWDS \
 				| SSCR1_SPH | SSCR1_SPO | SSCR1_LBM)
 
+/* add CS control call back feature to give user capability
+to control CS signal by themselves*/
+#define CS_DEASSERT	0
+#define CS_ASSERT		1
+
 struct callback_param {
 	void *drv_context;
 	u32 direction;
@@ -301,8 +306,6 @@ struct ssp_drv_context {
 	unsigned long quirks;
 	u32 rx_fifo_threshold;
 
-	/* if CS_ACTIVE_HIGH, cs_assert == 1 else cs_assert == 0 */
-	int cs_assert;
 	int cs_change;
 	void (*cs_control)(u32 command);
 };
