@@ -204,6 +204,9 @@ static int u8_writer(struct ssp_drv_context *sspc)
 
 static int u8_reader(struct ssp_drv_context *sspc)
 {
+        if (sspc->rx == 0)
+          return null_reader(sspc);
+
 	void *reg = sspc->ioaddr;
 	while ((read_SSSR(reg) & SSSR_RNE)
 		&& (sspc->rx < sspc->rx_end)) {
@@ -525,6 +528,7 @@ static void dma_transfer(struct ssp_drv_context *sspc)
 
 	flag = DMA_PREP_INTERRUPT | DMA_CTRL_ACK;
 
+       
 	if (likely(sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL)) {
 		/* Since the DMA is configured to do 32bits access */
 		/* to/from the DDR, the DMA transfer size must be  */
@@ -548,6 +552,13 @@ static void dma_transfer(struct ssp_drv_context *sspc)
 		} else
 			dev_err(dev, "ERROR : sspc->rx_dma is null!\n");
 	}
+
+	dev_dbg(&sspc->pdev->dev, "dma_transfer:"
+                " quirks: %d, len_dma_rx: %d, len_dma_tx: %d,"
+                " rx_fifo_threshold: %d, n_bytes: %d",
+                sspc->quirks, sspc->len_dma_rx, sspc->len_dma_tx,
+                sspc->rx_fifo_threshold,
+                sspc->n_bytes);
 
 	sspc->dmas_rx.dma_slave.src_addr = ssdr_addr;
 	rxchan->device->device_control(rxchan, DMA_SLAVE_CONFIG,
@@ -1220,7 +1231,7 @@ static int setup(struct spi_device *spi)
 		spi->bits_per_word, spi->mode & 0x3);
 	if (spi->bits_per_word <= 8) {
 		chip->n_bytes = 1;
-		chip->read = null_reader;
+		chip->read = u8_reader;
 		chip->write = u8_writer;
 	} else if (spi->bits_per_word <= 16) {
 		chip->n_bytes = 2;
