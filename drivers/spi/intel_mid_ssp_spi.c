@@ -204,10 +204,12 @@ static int u8_writer(struct ssp_drv_context *sspc)
 
 static int u8_reader(struct ssp_drv_context *sspc)
 {
+        void *reg;
+
         if (sspc->rx == 0)
           return null_reader(sspc);
 
-	void *reg = sspc->ioaddr;
+	reg = sspc->ioaddr;
 	while ((read_SSSR(reg) & SSSR_RNE)
 		&& (sspc->rx < sspc->rx_end)) {
 		*(u8 *)(sspc->rx) = read_SSDR(reg);
@@ -529,7 +531,7 @@ static void dma_transfer(struct ssp_drv_context *sspc)
 	flag = DMA_PREP_INTERRUPT | DMA_CTRL_ACK;
 
        
-	if (likely(sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL)) {
+	if (sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL) {
 		/* Since the DMA is configured to do 32bits access */
 		/* to/from the DDR, the DMA transfer size must be  */
 		/* a multiple of 4 bytes                           */
@@ -728,7 +730,7 @@ static void int_transfer_complete(struct ssp_drv_context *sspc)
 	if (unlikely(sspc->quirks & QUIRKS_SRAM_ADDITIONAL_CPY))
 		sram_to_ddr_cpy(sspc);
 
-	if (likely(sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL))
+	if (sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL)
 		drain_trail(sspc);
 	else
 		/* Stop getting Time Outs */
@@ -1020,7 +1022,7 @@ static int handle_message(struct ssp_drv_context *sspc)
 	/* setup the CR1 control register */
 	cr1 = chip->cr1 | sspc->cr1_sig;
 
-	if (likely(sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL)) {
+	if (sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL) {
 		/* in case of len smaller than burst size, adjust the RX     */
 		/* threshold. All other cases will use the default threshold */
 		/* value. The RX fifo threshold must be aligned with the DMA */
@@ -1035,7 +1037,9 @@ static int handle_message(struct ssp_drv_context *sspc)
 			cr1 |= SSCR1_RxTresh(rx_fifo_threshold) & SSCR1_RFT;
 		} else
 			write_SSTO(chip->timeout, reg);
-	}
+	} else {
+          write_SSTO(chip->timeout, reg);
+        }
 
 	dev_dbg(dev, "transfer len:%d  n_bytes:%d  cr0:%x  cr1:%x",
 		sspc->len, sspc->n_bytes, chip->cr0, cr1);
@@ -1267,8 +1271,8 @@ static int setup(struct spi_device *spi)
 		intel_mid_ssp_spi_dma_init(sspc);
 		sspc->cr1_sig = SSCR1_TSRE | SSCR1_RSRE;
 		sspc->mask_sr = SSSR_ROR | SSSR_TUR;
-		if (sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL)
-			sspc->cr1_sig |= SSCR1_TRAIL;
+		// if (sspc->quirks & QUIRKS_DMA_USE_NO_TRAIL)
+		sspc->cr1_sig |= SSCR1_TRAIL;
 	} else {
 		sspc->cr1_sig = SSCR1_TINTE;
 		sspc->mask_sr = SSSR_ROR | SSSR_TUR | SSSR_TINT;
@@ -1382,7 +1386,10 @@ static int intel_mid_ssp_spi_probe(struct pci_dev *pdev,
 			sspc->quirks |= QUIRKS_USE_PM_QOS |
 					QUIRKS_SRAM_ADDITIONAL_CPY;
 	}
-	sspc->quirks |= QUIRKS_DMA_USE_NO_TRAIL;
+
+        if (!(sspc->quirks & QUIRKS_PLATFORM_MRFL))
+		sspc->quirks |= QUIRKS_DMA_USE_NO_TRAIL;
+
 	if (ssp_cfg_is_spi_slave(ssp_cfg))
 		sspc->quirks |= QUIRKS_SPI_SLAVE_CLOCK_MODE;
 
