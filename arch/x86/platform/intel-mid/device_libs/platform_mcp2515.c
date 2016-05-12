@@ -97,7 +97,11 @@ void __init *mcp2515_platform_data(void *info)
 
 	spi_info->mode = SPI_MODE_0;
 
-	spi_info->max_speed_hz = 10000000,
+        // Due to an electric problem of the SPI bus of the anemobox,
+        // we can't set the speed higher than 1MHz.
+        // In theory, the mcp251x supports 10MHz. However, the edison SPI driver,
+        // when asked to output at 10MHz, outputs at 12.5MHz.
+	spi_info->max_speed_hz = 10000000 / 10;
 	spi_info->controller_data = &chip;
 	spi_info->bus_num = FORCE_SPI_BUS_NUM;
 
